@@ -82,6 +82,14 @@ button { cursor: pointer; }
 .btn svg { width: 16px; height: 16px; flex: none; }
 .btn:disabled { opacity: .4; cursor: default; }
 .sep { width: 1px; height: 22px; background: var(--line); flex: none; }
+.nseg { display: flex; border: 1px solid var(--line); border-radius: 8px; padding: 2px; gap: 2px; background: var(--surface-2); flex: none; }
+.nseg button { border: 0; background: transparent; border-radius: 6px; padding: 4px 10px; font-weight: 500; font-size: 13px; color: var(--muted); }
+.nseg button:hover { color: var(--ink); }
+.nseg button.on { background: var(--surface); color: var(--accent); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+.nseg-label { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.nt-batini { display: none; }
+:root[data-notation="batini"] .nt-batini { display: revert; }
+:root[data-notation="batini"] .nt-chen { display: none; }
 .only-mobile { display: none; }
 
 /* Main */
@@ -258,6 +266,12 @@ pre.sql { font: 400 12px/1.55 var(--f-mono); background: var(--surface-2); borde
     </div>
     <input id="projName" class="pname" aria-label="Nome del progetto" spellcheck="false">
     <div class="actions">
+      <span class="nseg-label hide-sm">Notazione</span>
+      <div class="nseg hide-sm" role="group" aria-label="Notazione del diagramma">
+        <button data-nbtn="batini" title="Notazione Batini (Atzeni et al.)">Batini</button>
+        <button data-nbtn="chen" title="Notazione Chen">Chen</button>
+      </div>
+      <span class="sep hide-sm"></span>
       <button class="btn" id="btnNew" title="Nuovo progetto vuoto">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 1.5h5l3.5 3.5v9.5h-8.5z"/><path d="M9 1.5V5h3.5"/></svg><span class="hide-sm">Nuovo</span></button>
       <button class="btn" id="btnOpen" title="Apri un progetto .json (Ctrl+O)">
@@ -285,8 +299,8 @@ pre.sql { font: 400 12px/1.55 var(--f-mono); background: var(--surface-2); borde
       <button class="tool" data-tool="entity" title="Entità (E)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="7" width="18" height="10" rx="1"/></svg><span class="k">E</span></button>
       <button class="tool" data-tool="weak" title="Entità debole (W)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="6.5" width="19" height="11" rx="1"/><rect x="5" y="9" width="14" height="6"/></svg><span class="k">W</span></button>
       <button class="tool" data-tool="relationship" title="Relazione / associazione (R)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5 21.5 12 12 19 2.5 12z" stroke-linejoin="round"/></svg><span class="k">R</span></button>
-      <button class="tool" data-tool="attribute" title="Attributo (A) — clicca su un'entità per collegarlo subito"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><ellipse cx="12" cy="12" rx="9.5" ry="5.5"/></svg><span class="k">A</span></button>
-      <button class="tool" data-tool="isa" title="Generalizzazione ISA (G)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 4.5 20 18H4z" stroke-linejoin="round"/></svg><span class="k">G</span></button>
+      <button class="tool" data-tool="attribute" title="Attributo (A) — clicca su un'entità per collegarlo subito"><svg class="nt-chen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><ellipse cx="12" cy="12" rx="9.5" ry="5.5"/></svg><svg class="nt-batini" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3.5 19 13.5 9.5"/><circle cx="16.5" cy="7" r="3.5"/></svg><span class="k">A</span></button>
+      <button class="tool" data-tool="isa" title="Generalizzazione ISA (G)"><svg class="nt-chen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 4.5 20 18H4z" stroke-linejoin="round"/></svg><svg class="nt-batini" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20 12 13.5 20 20M12 13.5V8"/><path d="M12 3 8.5 8.5h7z" fill="currentColor" stroke-linejoin="round"/></svg><span class="k">G</span></button>
       <button class="tool" data-tool="note" title="Nota (N)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16v11l-5 5H4z M15 20v-5h5" stroke-linejoin="round"/></svg><span class="k">N</span></button>
       <hr>
       <button class="tool" data-tool="connect" title="Collega due elementi (C)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="5.5" r="2.5"/><path d="M7.3 16.7 16.7 7.3"/></svg><span class="k">C</span></button>
@@ -350,6 +364,7 @@ const DFONT = '"Helvetica Neue", Helvetica, Arial, sans-serif';
 const GRID = 20;
 const STORE_KEY = 'studio-er:v1';
 const THEME_KEY = 'studio-er:theme';
+const NOTATION_KEY = 'studio-er:notation';
 const TYPES = ['entity', 'relationship', 'attribute', 'isa', 'note'];
 const TYPE_NAME = { entity: 'Entità', relationship: 'Relazione', attribute: 'Attributo', isa: 'Generalizzazione', note: 'Nota' };
 const DTYPES = ['VARCHAR(100)', 'VARCHAR(255)', 'CHAR(16)', 'INT', 'BIGINT', 'DECIMAL(10,2)', 'DATE', 'DATETIME', 'BOOLEAN', 'TEXT'];
@@ -372,6 +387,9 @@ let seq = 1;
 let pendingConnect = null; // id del nodo di partenza
 let spaceDown = false;
 let gesture = null;
+let notation = 'batini'; // 'batini' | 'chen'
+let idMarks = { filled: new Set(), svg: '' };
+const isB = () => notation === 'batini';
 
 const $ = s => document.querySelector(s);
 const svg = $('#svg'), vp = $('#vp'), gEdges = $('#edges'), gNodes = $('#nodes'), gOver = $('#overlay');
@@ -387,7 +405,43 @@ const r1 = v => Math.round(v * 10) / 10;
 /* ---------- Misure ---------- */
 const mctx = document.createElement('canvas').getContext('2d');
 function tw(text, weight = 600, size = 14) { mctx.font = `${weight} ${size}px ${DFONT}`; return mctx.measureText(text || '').width; }
+// Batini: un attributo con sotto-attributi è composto (ovale), gli altri sono "lecca-lecca"
+function isComposite(n) {
+  if (n.type !== 'attribute') return false;
+  const links = nb(n.id);
+  const subs = links.filter(x => x.o.type === 'attribute').length;
+  return subs >= 2 || (subs >= 1 && links.some(x => x.o.type === 'entity' || x.o.type === 'relationship'));
+}
+const isLolli = n => isB() && n.type === 'attribute' && !isComposite(n);
+function attrText(n) {
+  if (!isB()) return n.label;
+  if (n.multi) return n.label + (n.optional ? ' (0,N)' : ' (1,N)');
+  return n.optional ? n.label + ' (0,1)' : n.label;
+}
+function lolli(n) {
+  const own = nb(n.id).map(x => x.o).find(o => o.type !== 'note');
+  const dx = own ? n.x - own.x : 0, dy = own ? n.y - own.y : -1;
+  const txt = attrText(n), w = tw(txt, 400, 13);
+  let anchor, tx, ty;
+  if (Math.abs(dx) >= Math.abs(dy) * 0.7) { anchor = dx >= 0 ? 'start' : 'end'; tx = n.x + (dx >= 0 ? 11 : -11); ty = n.y; }
+  else { anchor = 'middle'; tx = n.x; ty = n.y + (dy < 0 ? -16 : 16); }
+  const x1 = anchor === 'start' ? tx : anchor === 'end' ? tx - w : tx - w / 2;
+  return { txt, anchor, tx, ty, x1, x2: x1 + w, y1: ty - 9, y2: ty + 9 };
+}
+function extent(n) {
+  const { w, h } = size(n);
+  let x1 = n.x - w / 2, y1 = n.y - h / 2, x2 = n.x + w / 2, y2 = n.y + h / 2;
+  if (n.type === 'isa') { x2 += 40; y1 -= 18; }
+  if (isLolli(n)) { const L = lolli(n); x1 = Math.min(x1, L.x1); x2 = Math.max(x2, L.x2); y1 = Math.min(y1, L.y1); y2 = Math.max(y2, L.y2); }
+  return { x1, y1, x2, y2 };
+}
 function size(n) {
+  if (isB()) {
+    if (n.type === 'entity') return { w: Math.max(110, tw(n.label) + 42), h: 50 };
+    if (n.type === 'relationship') return { w: Math.max(124, (tw(n.label) + 26) / 0.66), h: 66 };
+    if (n.type === 'isa' || isLolli(n)) return { w: 14, h: 14 };
+    if (n.type === 'attribute') return { w: Math.max(78, tw(attrText(n), 400) + 38), h: 38 };
+  }
   switch (n.type) {
     case 'entity': return { w: Math.max(110, tw(n.label) + 42 + (n.weak ? 10 : 0)), h: n.weak ? 56 : 50 };
     case 'relationship': return { w: Math.max(124, (tw(n.label) + 26) / 0.66 + (n.identifying ? 14 : 0)), h: n.identifying ? 74 : 66 };
@@ -400,8 +454,8 @@ function size(n) {
   }
   return { w: 100, h: 50 };
 }
-function inside(n, x, y, pad = 1) {
-  const { w, h } = size(n); const dx = Math.abs(x - n.x), dy = Math.abs(y - n.y);
+function inside(n, x, y, pad = 1, sz) {
+  const { w, h } = sz || size(n); const dx = Math.abs(x - n.x), dy = Math.abs(y - n.y);
   if (n.type === 'attribute') return (dx / (w / 2)) ** 2 + (dy / (h / 2)) ** 2 <= pad;
   if (n.type === 'relationship') return dx / (w / 2) + dy / (h / 2) <= pad;
   return dx <= w / 2 * pad && dy <= h / 2 * pad;
@@ -431,6 +485,15 @@ function diagramCSS(p) {
 .edge.sel{stroke:${p.sel}}
 .edge-hit{fill:none;stroke:transparent;stroke-width:14}
 .node.target .shape{stroke:${p.sel};stroke-width:3}
+.lbl{font-size:13px;font-weight:400}
+.n-attribute .shape.filled,.junction{fill:${p.stroke}}
+.hit{fill:transparent;stroke:none}
+.edge.dash{stroke-dasharray:5 4}
+.idbar{fill:none;stroke:${p.stroke};stroke-width:1.6;stroke-linecap:round}
+.iddot{fill:${p.stroke}}
+.arrow{fill:${p.bg};stroke:${p.edge};stroke-width:1.6;stroke-linejoin:round}
+.arrow.filled{fill:${p.edge}}
+.arrow.sel{stroke:${p.sel}}.arrow.filled.sel{fill:${p.sel}}
 .tmp-line{stroke:${p.sel};stroke-width:1.6;stroke-dasharray:5 4;fill:none}
 .box{fill:${p.sel};fill-opacity:.08;stroke:${p.sel};stroke-dasharray:4 3}`;
 }
@@ -439,6 +502,31 @@ function nodeSVG(n, selected) {
   const { w, h } = size(n); const x = n.x, y = n.y, hw = w / 2, hh = h / 2;
   let s = '';
   const L = esc(n.label);
+  if (isB() && n.type !== 'note') {
+    if (isLolli(n)) {
+      const P = lolli(n), filled = idMarks.filled.has(n.id);
+      const hx = Math.min(P.x1, x - 8), hx2 = Math.max(P.x2, x + 8), hy = Math.min(P.y1, y - 8), hy2 = Math.max(P.y2, y + 8);
+      s += `<rect class="hit" x="${r1(hx - 3)}" y="${r1(hy - 3)}" width="${r1(hx2 - hx + 6)}" height="${r1(hy2 - hy + 6)}"/>`;
+      s += `<circle class="shape${n.derived ? ' dashed' : ''}${filled ? ' filled' : ''}" cx="${r1(x)}" cy="${r1(y)}" r="5"/>`;
+      s += `<text class="lbl" x="${r1(P.tx)}" y="${r1(P.ty)}" style="text-anchor:${P.anchor}">${esc(P.txt)}</text>`;
+      return `<g class="node n-attribute${selected ? ' sel' : ''}" data-node="${n.id}">${s}</g>`;
+    }
+    if (n.type === 'attribute') {
+      s += `<ellipse class="shape${n.derived ? ' dashed' : ''}" cx="${r1(x)}" cy="${r1(y)}" rx="${r1(hw)}" ry="${hh}"/><text x="${r1(x)}" y="${r1(y)}">${esc(attrText(n))}</text>`;
+      return `<g class="node n-attribute${selected ? ' sel' : ''}" data-node="${n.id}">${s}</g>`;
+    }
+    if (n.type === 'isa') {
+      s += `<circle class="hit" cx="${r1(x)}" cy="${r1(y)}" r="12"/><circle class="shape junction" cx="${r1(x)}" cy="${r1(y)}" r="3.5"/>`;
+      if (isaInfo(n).children.length >= 2) s += `<text class="isa-tag" x="${r1(x + 10)}" y="${r1(y - 12)}" style="text-anchor:start">(${n.total ? 't' : 'p'},${n.disjoint ? 'e' : 's'})</text>`;
+      return `<g class="node n-isa${selected ? ' sel' : ''}" data-node="${n.id}">${s}</g>`;
+    }
+    if (n.type === 'entity') {
+      s += `<rect class="shape" x="${r1(x - hw)}" y="${r1(y - hh)}" width="${r1(w)}" height="${h}" rx="2"/><text x="${r1(x)}" y="${r1(y)}">${L}</text>`;
+    } else if (n.type === 'relationship') {
+      s += `<polygon class="shape" points="${r1(x)},${r1(y - hh)} ${r1(x + hw)},${r1(y)} ${r1(x)},${r1(y + hh)} ${r1(x - hw)},${r1(y)}"/><text x="${r1(x)}" y="${r1(y)}">${L}</text>`;
+    }
+    return `<g class="node n-${n.type}${selected ? ' sel' : ''}" data-node="${n.id}">${s}</g>`;
+  }
   switch (n.type) {
     case 'entity':
       s += `<rect class="shape" x="${r1(x - hw)}" y="${r1(y - hh)}" width="${r1(w)}" height="${h}" rx="2"/>`;
@@ -501,14 +589,30 @@ function labelEnd(e, a, b) {
 }
 function edgeSVG(e, groups, selected, forExport) {
   const g = edgeGeo(e, groups); if (!g) return '';
-  const d = `M${r1(g.ax)},${r1(g.ay)} Q${r1(g.cx)},${r1(g.cy)} ${r1(g.bx)},${r1(g.by)}`;
   const noteLink = g.a.type === 'note' || g.b.type === 'note';
-  let s = `<path class="edge${e.total ? ' total' : ''}${noteLink ? ' note-link' : ''}${selected ? ' sel' : ''}" d="${d}"/>`;
-  if (e.total) s += `<path class="edge-inner" d="${d}"/>`;
+  const hit = d => forExport ? '' : `<path class="edge-hit" data-edge="${e.id}" d="${d}"/>`;
+  if (isB() && !noteLink && (g.a.type === 'isa' || g.b.type === 'isa')) {
+    // Batini: i figli convergono nel punto di giunzione, da cui parte la freccia verso il padre
+    const isaN = g.a.type === 'isa' ? g.a : g.b, other = isaN === g.a ? g.b : g.a;
+    if (isaInfo(isaN).parent === other) {
+      const tip = exitPoint(other, isaN);
+      const ux = tip.x - isaN.x, uy = tip.y - isaN.y, ul = Math.hypot(ux, uy) || 1, dx = ux / ul, dy = uy / ul;
+      const bx = tip.x - dx * 13, by = tip.y - dy * 13;
+      const d = `M${r1(isaN.x)},${r1(isaN.y)} L${r1(bx)},${r1(by)}`;
+      return `<g><path class="edge${selected ? ' sel' : ''}" d="${d}"/><polygon class="arrow${isaN.total ? ' filled' : ''}${selected ? ' sel' : ''}" points="${r1(tip.x)},${r1(tip.y)} ${r1(bx - dy * 6.5)},${r1(by + dx * 6.5)} ${r1(bx + dy * 6.5)},${r1(by - dx * 6.5)}"/>${hit(`M${r1(isaN.x)},${r1(isaN.y)} L${r1(tip.x)},${r1(tip.y)}`)}</g>`;
+    }
+    const d = `M${r1(other.x)},${r1(other.y)} L${r1(isaN.x)},${r1(isaN.y)}`;
+    return `<g><path class="edge${selected ? ' sel' : ''}" d="${d}"/>${hit(d)}</g>`;
+  }
+  const d = `M${r1(g.ax)},${r1(g.ay)} Q${r1(g.cx)},${r1(g.cy)} ${r1(g.bx)},${r1(g.by)}`;
+  const total = e.total && !isB();
+  const dashed = isB() && [g.a, g.b].some(n => n.type === 'attribute' && n.derived && isLolli(n));
+  let s = `<path class="edge${total ? ' total' : ''}${noteLink ? ' note-link' : ''}${dashed ? ' dash' : ''}${selected ? ' sel' : ''}" d="${d}"/>`;
+  if (total) s += `<path class="edge-inner" d="${d}"/>`;
   if (e.card) {
-    const end = labelEnd(e, g.a, g.b); const node = end === 'from' ? g.a : g.b;
+    const end = labelEnd(e, g.a, g.b); const node = end === 'from' ? g.a : g.b; const nsz = size(node);
     let t = end === 'from' ? 0 : 1; const step = end === 'from' ? 0.01 : -0.01;
-    while (t >= 0 && t <= 1 && inside(node, bez(g, t).x, bez(g, t).y, 1.02)) t += step;
+    while (t >= 0 && t <= 1 && inside(node, bez(g, t).x, bez(g, t).y, 1.02, nsz)) t += step;
     t = Math.min(1, Math.max(0, t));
     const p = bez(g, t); let dv = bezD(g, t); let dl = Math.hypot(dv.x, dv.y) || 1;
     let ux = dv.x / dl * (end === 'from' ? 1 : -1), uy = dv.y / dl * (end === 'from' ? 1 : -1);
@@ -521,13 +625,64 @@ function edgeSVG(e, groups, selected, forExport) {
     const p = bez(g, 0.5), dv = bezD(g, 0.5), dl = Math.hypot(dv.x, dv.y) || 1;
     s += `<text class="role" x="${r1(p.x - dv.y / dl * 12)}" y="${r1(p.y + dv.x / dl * 12)}">${esc(e.role)}</text>`;
   }
-  if (!forExport) s += `<path class="edge-hit" data-edge="${e.id}" d="${d}"/>`;
+  s += hit(d);
   return `<g>${s}</g>`;
+}
+// Punto in cui la retta dal centro di `n` verso `to` esce dal bordo di `n`
+function exitPoint(n, to) {
+  const sz = size(n); let t = 0;
+  while (t < 1 && inside(n, n.x + (to.x - n.x) * t, n.y + (to.y - n.y) * t, 1, sz)) t += 0.005;
+  return { x: n.x + (to.x - n.x) * t, y: n.y + (to.y - n.y) * t };
+}
+// Batini: pallino pieno per l'identificatore semplice, barra con pallino per quello composto o esterno
+function identifierMarks() {
+  const filled = new Set(), parts = [];
+  if (!isB()) return { filled, svg: '' };
+  for (const E of doc.nodes) {
+    if (E.type !== 'entity') continue;
+    const links = nb(E.id);
+    const keys = links.filter(x => x.o.type === 'attribute' && (x.o.key || (E.weak && x.o.partial))).map(x => x.o);
+    const ext = E.weak ? links.filter(x => x.o.type === 'relationship' && x.o.identifying).map(x => x.o) : [];
+    if (!ext.length && keys.length === 1) { filled.add(keys[0].id); continue; }
+    if (!ext.length && !keys.length) continue;
+    const { w, h } = size(E);
+    const pts = [...new Set([...keys, ...ext])].map(o => {
+      let dx = o.x - E.x, dy = o.y - E.y; const l = Math.hypot(dx, dy) || 1; dx /= l; dy /= l;
+      const tb = Math.min(dx ? w / 2 / Math.abs(dx) : Infinity, dy ? h / 2 / Math.abs(dy) : Infinity);
+      const r = Math.min(tb + 16, Math.max(tb + 4, l - 12));
+      return { x: E.x + dx * r, y: E.y + dy * r, a: Math.atan2(dy, dx), dx, dy };
+    }).sort((p, q) => p.a - q.a);
+    let gi = 0, gmax = -1;
+    pts.forEach((p, i) => { const nxt = i + 1 < pts.length ? pts[i + 1].a : pts[0].a + 2 * Math.PI; if (nxt - p.a > gmax) { gmax = nxt - p.a; gi = i; } });
+    const ord = pts.slice(gi + 1).concat(pts.slice(0, gi + 1));
+    let d, dot;
+    if (ord.length === 1) {
+      const p = ord[0];
+      d = `M${r1(p.x + p.dy * 9)},${r1(p.y - p.dx * 9)} L${r1(p.x - p.dy * 9)},${r1(p.y + p.dx * 9)}`;
+      dot = { x: p.x - p.dy * 9, y: p.y + p.dx * 9 };
+    } else {
+      d = `M${r1(ord[0].x + ord[0].dy * 7)},${r1(ord[0].y - ord[0].dx * 7)} L${r1(ord[0].x)},${r1(ord[0].y)}`;
+      // segue il contorno dell'entità, a distanza costante dal bordo
+      const contour = ang => { const dx = Math.cos(ang), dy = Math.sin(ang); const tb = Math.min(dx ? w / 2 / Math.abs(dx) : Infinity, dy ? h / 2 / Math.abs(dy) : Infinity); return { x: E.x + dx * (tb + 16), y: E.y + dy * (tb + 16) }; };
+      for (let i = 1; i < ord.length; i++) {
+        let a0 = ord[i - 1].a, a1 = ord[i].a; if (a1 < a0) a1 += 2 * Math.PI;
+        const steps = Math.max(1, Math.ceil((a1 - a0) / 0.08));
+        for (let k = 1; k < steps; k++) { const p = contour(a0 + (a1 - a0) * k / steps); d += ` L${r1(p.x)},${r1(p.y)}`; }
+        d += ` L${r1(ord[i].x)},${r1(ord[i].y)}`;
+      }
+      const last = ord[ord.length - 1];
+      dot = { x: last.x - last.dy * 10, y: last.y + last.dx * 10 };
+      d += ` L${r1(dot.x)},${r1(dot.y)}`;
+    }
+    parts.push(`<path class="idbar" d="${d}"/><circle class="iddot" cx="${r1(dot.x)}" cy="${r1(dot.y)}" r="4.5"/>`);
+  }
+  return { filled, svg: parts.join('') };
 }
 
 function renderCanvas() {
   const groups = pairGroups();
-  gEdges.innerHTML = doc.edges.map(e => edgeSVG(e, groups, sel.has(e.id), false)).join('');
+  idMarks = identifierMarks();
+  gEdges.innerHTML = doc.edges.map(e => edgeSVG(e, groups, sel.has(e.id), false)).join('') + idMarks.svg;
   gNodes.innerHTML = doc.nodes.map(n => nodeSVG(n, sel.has(n.id))).join('');
   applyView();
   updateBadge();
@@ -611,8 +766,8 @@ function connect(aId, bId, silent) {
   doc.edges.push(e); return e;
 }
 function freeSpotAround(owner) {
-  const { w, h } = size(owner);
-  for (const rad of [Math.max(w, h) / 2 + 70, Math.max(w, h) / 2 + 125, Math.max(w, h) / 2 + 180]) {
+  const { w, h } = size(owner); const gap = isB() ? 45 : 70;
+  for (const rad of [Math.max(w, h) / 2 + gap, Math.max(w, h) / 2 + gap + 55, Math.max(w, h) / 2 + gap + 110]) {
     for (let i = 0; i < 16; i++) {
       const ang = -Math.PI / 2 + (i % 2 ? 1 : -1) * Math.ceil(i / 2) * (Math.PI / 8);
       const x = owner.x + Math.cos(ang) * rad * 1.15, y = owner.y + Math.sin(ang) * rad * 0.8;
@@ -802,7 +957,7 @@ function zoomCenter(f) { const r = svg.getBoundingClientRect(); zoomAt(r.width /
 function bbox(nodes = doc.nodes) {
   if (!nodes.length) return null;
   let x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity;
-  for (const n of nodes) { const { w, h } = size(n); x1 = Math.min(x1, n.x - w / 2); y1 = Math.min(y1, n.y - h / 2); x2 = Math.max(x2, n.x + w / 2 + (n.type === 'isa' ? 40 : 0)); y2 = Math.max(y2, n.y + h / 2); }
+  for (const n of nodes) { const b = extent(n); x1 = Math.min(x1, b.x1); y1 = Math.min(y1, b.y1); x2 = Math.max(x2, b.x2); y2 = Math.max(y2, b.y2); }
   return { x1, y1, x2, y2, w: x2 - x1, h: y2 - y1 };
 }
 function fit() {
@@ -948,14 +1103,17 @@ function validate() {
       const inIsaChild = doc.nodes.some(i => i.type === 'isa' && isaInfo(i).children.includes(n));
       if (n.weak) {
         if (!attrs.some(a => a.partial || a.key)) add('warn', n.id, `"${n.label}" non ha una chiave parziale`, 'Un\'entità debole ha bisogno di un attributo con chiave parziale (sottolineatura tratteggiata).');
-        if (!links.some(x => x.o.type === 'relationship' && x.o.identifying)) add('err', n.id, `"${n.label}" non ha una relazione identificante`, 'Collega l\'entità debole a una relazione con il doppio rombo (identificante).');
+        if (!links.some(x => x.o.type === 'relationship' && x.o.identifying)) add('err', n.id, isB() ? `"${n.label}" ha l'identificatore esterno ma nessuna relazione che vi partecipa` : `"${n.label}" non ha una relazione identificante`, isB() ? 'Seleziona la relazione da cui arriva la chiave e attiva "Parte di un identificatore esterno".' : 'Collega l\'entità debole a una relazione con il doppio rombo (identificante).');
       } else if (!inIsaChild && !attrs.some(a => a.key)) add('warn', n.id, `"${n.label}" non ha una chiave primaria`, 'Segna almeno un attributo come chiave (sottolineato).');
       if (!links.length) add('warn', n.id, `"${n.label}" non è collegata a niente`, 'Aggiungi attributi o collegala a una relazione.');
     }
     if (n.type === 'relationship') {
       const ents = links.filter(x => x.o.type === 'entity');
       if (ents.length < 2) add('err', n.id, `La relazione "${n.label}" collega ${ents.length} entità`, 'Una relazione deve collegare almeno due entità (o la stessa entità due volte, se è ricorsiva).');
-      ents.forEach(x => { if (!x.e.card.trim()) add('warn', x.e.id, `Manca la cardinalità tra "${n.label}" e "${x.o.label}"`, 'Seleziona il collegamento e scegli una cardinalità, ad esempio (1,N).'); });
+      ents.forEach(x => {
+        if (!x.e.card.trim()) add('warn', x.e.id, `Manca la cardinalità tra "${n.label}" e "${x.o.label}"`, 'Seleziona il collegamento e scegli una cardinalità, ad esempio (1,N).');
+        else if (isB() && parseCard(x.e.card).style !== 'mm') add('warn', x.e.id, `Cardinalità "${x.e.card}" non in forma (min,max)`, `Tra "${n.label}" e "${x.o.label}": in notazione Batini usa ad esempio (0,N) o (1,1).`);
+      });
       const roleless = ents.filter((x, i) => ents.findIndex(y => y.o.id === x.o.id) !== i);
       roleless.forEach(x => { if (!x.e.role) add('warn', x.e.id, `Relazione ricorsiva "${n.label}" senza ruoli`, 'Dai un nome di ruolo a ciascun ramo (es. "capo" e "dipendente").'); });
     }
@@ -1125,14 +1283,32 @@ const legendSVG = {
   key: '<ellipse cx="27" cy="14" rx="23" ry="10" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M17 18h20" stroke="currentColor" stroke-width="1.3"/>',
   multi: '<ellipse cx="27" cy="14" rx="24" ry="11" fill="none" stroke="currentColor" stroke-width="1.3"/><ellipse cx="27" cy="14" rx="19.5" ry="7" fill="none" stroke="currentColor" stroke-width="1.1"/>',
   derived: '<ellipse cx="27" cy="14" rx="23" ry="10" fill="none" stroke="currentColor" stroke-width="1.3" stroke-dasharray="4 3"/>',
-  total: '<path d="M2 14h50" stroke="currentColor" stroke-width="5"/><path d="M2 14h50" stroke="var(--surface)" stroke-width="1.6"/>'
+  total: '<path d="M2 14h50" stroke="currentColor" stroke-width="5"/><path d="M2 14h50" stroke="var(--surface)" stroke-width="1.6"/>',
+  bAttr: '<path d="M2 14h30" stroke="currentColor" stroke-width="1.3"/><circle cx="36" cy="14" r="4.5" fill="var(--surface)" stroke="currentColor" stroke-width="1.3"/>',
+  bKey: '<path d="M2 14h30" stroke="currentColor" stroke-width="1.3"/><circle cx="36" cy="14" r="4.5" fill="currentColor" stroke="currentColor" stroke-width="1.3"/>',
+  bCompId: '<path d="M2 8h34M2 20h34" stroke="currentColor" stroke-width="1.3"/><circle cx="40" cy="8" r="4" fill="var(--surface)" stroke="currentColor" stroke-width="1.3"/><circle cx="40" cy="20" r="4" fill="var(--surface)" stroke="currentColor" stroke-width="1.3"/><path d="M18 26V5" stroke="currentColor" stroke-width="1.3"/><circle cx="18" cy="26" r="2.5" fill="currentColor"/>',
+  bMulti: '<path d="M2 14h12" stroke="currentColor" stroke-width="1.3"/><circle cx="18" cy="14" r="4" fill="var(--surface)" stroke="currentColor" stroke-width="1.3"/><text x="25" y="17.5" font-size="9.5" fill="currentColor" font-family="sans-serif">(1,N)</text>',
+  bDerived: '<path d="M2 14h30" stroke="currentColor" stroke-width="1.3" stroke-dasharray="4 3"/><circle cx="36" cy="14" r="4.5" fill="var(--surface)" stroke="currentColor" stroke-width="1.3" stroke-dasharray="3 2"/>',
+  bIsa: '<path d="M8 26 27 17 46 26M27 17V10" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M27 2 22.5 10h9z" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>'
 };
 function projectPanel() {
   const c = t => doc.nodes.filter(n => n.type === t).length;
   return `<h3>${esc(doc.name)}</h3><p class="sub">Nessun elemento selezionato. Scegli uno strumento a sinistra o fai doppio clic sul foglio per creare un'entità.</p>
   <div class="stats"><div class="stat"><b>${c('entity')}</b><span>entità</span></div><div class="stat"><b>${c('relationship')}</b><span>relazioni</span></div><div class="stat"><b>${c('attribute')}</b><span>attributi</span></div></div>
   <div class="eyebrow">Notazione</div>
-  <div class="legend">
+  <div class="nseg" role="group" aria-label="Notazione del diagramma" style="margin-bottom:12px">
+    <button data-nbtn="batini" class="${isB() ? 'on' : ''}" style="flex:1">Batini</button><button data-nbtn="chen" class="${isB() ? '' : 'on'}" style="flex:1">Chen</button>
+  </div>
+  ${isB() ? `<div class="legend">
+    <div><svg viewBox="0 0 54 28">${legendSVG.entity}</svg>Entità</div>
+    <div><svg viewBox="0 0 54 28">${legendSVG.rel}</svg>Relazione</div>
+    <div><svg viewBox="0 0 54 28">${legendSVG.bAttr}</svg>Attributo</div>
+    <div><svg viewBox="0 0 54 28">${legendSVG.bKey}</svg>Identificatore</div>
+    <div><svg viewBox="0 0 54 28">${legendSVG.bCompId}</svg>Identificatore composto o esterno</div>
+    <div><svg viewBox="0 0 54 28">${legendSVG.bMulti}</svg>Multivalore / facoltativo</div>
+    <div><svg viewBox="0 0 54 28">${legendSVG.bDerived}</svg>Attributo derivato</div>
+    <div><svg viewBox="0 0 54 28">${legendSVG.bIsa}</svg>Generalizzazione totale (freccia vuota se parziale)</div>
+  </div>` : `<div class="legend">
     <div><svg viewBox="0 0 54 28">${legendSVG.entity}</svg>Entità</div>
     <div><svg viewBox="0 0 54 28">${legendSVG.weak}</svg>Entità debole</div>
     <div><svg viewBox="0 0 54 28">${legendSVG.rel}</svg>Relazione</div>
@@ -1141,7 +1317,7 @@ function projectPanel() {
     <div><svg viewBox="0 0 54 28">${legendSVG.multi}</svg>Attributo multivalore</div>
     <div><svg viewBox="0 0 54 28">${legendSVG.derived}</svg>Attributo derivato</div>
     <div><svg viewBox="0 0 54 28">${legendSVG.total}</svg>Partecipazione totale</div>
-  </div>
+  </div>`}
   <div class="eyebrow">Scorciatoie</div>
   <div class="keys">
     <kbd>V H</kbd><span>Seleziona · Mano</span>
@@ -1166,7 +1342,8 @@ function attrListHTML(n) {
   return `<ul class="alist">${attrs.map(a => `<li><button class="linkbtn" data-act="select" data-id="${a.id}">${esc(a.label)}</button><span class="row">${a.key ? '<span class="tag pk">PK</span>' : ''}${a.partial ? '<span class="tag pk">parz.</span>' : ''}${a.multi ? '<span class="tag">multi</span>' : ''}${a.derived ? '<span class="tag">derivato</span>' : ''}${!a.derived && !a.multi ? `<span class="tag">${esc(a.dtype || '')}</span>` : ''}</span></li>`).join('')}</ul>`;
 }
 const chk = (id, prop, checked, title, help) => `<label class="check"><input type="checkbox" data-id="${id}" data-prop="${prop}" ${checked ? 'checked' : ''}><span>${title}${help ? `<small>${help}</small>` : ''}</span></label>`;
-const cardInput = (e, idAttr = '') => `<input class="inp" ${idAttr} data-id="${e.id}" data-prop="card" value="${esc(e.card)}" list="cardList" placeholder="es. (1,N)" autocomplete="off"><div class="chips">${CARDS.map(c => `<button class="chip${e.card === c ? ' on' : ''}" data-act="card" data-id="${e.id}" data-val="${c}">${c}</button>`).join('')}</div>`;
+const cardsFor = () => isB() ? CARDS.slice(0, 4) : CARDS;
+const cardInput = (e, idAttr = '') => `<input class="inp" ${idAttr} data-id="${e.id}" data-prop="card" value="${esc(e.card)}" list="cardList" placeholder="es. (1,N)" autocomplete="off"><div class="chips">${cardsFor().map(c => `<button class="chip${e.card === c ? ' on' : ''}" data-act="card" data-id="${e.id}" data-val="${c}">${c}</button>`).join('')}</div>`;
 
 function nodePanel(n) {
   const L = `<label class="field"><span>Nome</span><input class="inp" id="f-label" data-id="${n.id}" data-prop="label" value="${esc(n.label)}"></label>`;
@@ -1174,13 +1351,13 @@ function nodePanel(n) {
   if (n.type === 'note') return s + `<label class="field"><span>Testo</span><textarea class="inp" id="f-label" data-id="${n.id}" data-prop="label">${esc(n.label)}</textarea></label>` + delBtn();
   s += L;
   if (n.type === 'entity') {
-    s += `<div class="checks">${chk(n.id, 'weak', n.weak, 'Entità debole', 'Si identifica tramite un\'altra entità')}</div>`;
+    s += `<div class="checks">${isB() ? chk(n.id, 'weak', n.weak, 'Identificatore esterno', 'Entità debole: parte della chiave viene da un\'altra entità') : chk(n.id, 'weak', n.weak, 'Entità debole', 'Si identifica tramite un\'altra entità')}</div>`;
     s += `<div class="eyebrow">Attributi</div>${attrListHTML(n)}<div class="row mt"><button class="btn" data-act="addattr" data-id="${n.id}">+ Attributo</button><button class="btn" data-act="addkey" data-id="${n.id}">+ Chiave</button></div>`;
     const rels = nb(n.id).filter(x => x.o.type === 'relationship');
     if (rels.length) s += `<div class="eyebrow">Partecipa a</div><ul class="alist">${rels.map(x => `<li><button class="linkbtn" data-act="select" data-id="${x.o.id}">${esc(x.o.label)}</button><span class="tag">${esc(x.e.card || '—')}</span></li>`).join('')}</ul>`;
   }
   if (n.type === 'relationship') {
-    s += `<div class="checks">${chk(n.id, 'identifying', n.identifying, 'Relazione identificante', 'Doppio rombo: identifica un\'entità debole')}</div>`;
+    s += `<div class="checks">${isB() ? chk(n.id, 'identifying', n.identifying, 'Parte di un identificatore esterno', 'La barra dell\'identificatore dell\'entità debole attraversa questo collegamento') : chk(n.id, 'identifying', n.identifying, 'Relazione identificante', 'Doppio rombo: identifica un\'entità debole')}</div>`;
     const parts = nb(n.id).filter(x => x.o.type === 'entity');
     s += `<div class="eyebrow">Entità collegate</div>`;
     s += parts.length ? `<div class="plist">${parts.map(x => `<div class="pitem"><div class="nm"><span>${esc(x.o.label)}</span><button data-act="select" data-id="${x.e.id}">Dettagli</button></div>${cardInput(x.e)}</div>`).join('')}</div>`
@@ -1188,12 +1365,13 @@ function nodePanel(n) {
     s += `<div class="eyebrow">Attributi</div>${attrListHTML(n)}<div class="row mt"><button class="btn" data-act="addattr" data-id="${n.id}">+ Attributo</button></div>`;
   }
   if (n.type === 'attribute') {
+    const b = isB();
     s += `<div class="checks">
-      ${chk(n.id, 'key', n.key, 'Chiave primaria', 'Identifica l\'entità (sottolineato)')}
-      ${chk(n.id, 'partial', n.partial, 'Chiave parziale', 'Per entità deboli (sottolineato tratteggiato)')}
-      ${chk(n.id, 'multi', n.multi, 'Multivalore', 'Può avere più valori (doppia ellisse)')}
-      ${chk(n.id, 'derived', n.derived, 'Derivato', 'Calcolato da altri dati (tratteggiato)')}
-      ${chk(n.id, 'optional', n.optional, 'Facoltativo', 'Può essere vuoto (NULL) nello schema SQL')}</div>
+      ${chk(n.id, 'key', n.key, b ? 'Identificatore' : 'Chiave primaria', b ? 'Pallino pieno; con più attributi, barra che li unisce' : 'Identifica l\'entità (sottolineato)')}
+      ${chk(n.id, 'partial', n.partial, b ? 'Parte dell\'identificatore esterno' : 'Chiave parziale', b ? 'Per entità deboli: entra nella barra dell\'identificatore' : 'Per entità deboli (sottolineato tratteggiato)')}
+      ${chk(n.id, 'multi', n.multi, 'Multivalore', b ? 'Mostra (1,N) accanto al nome' : 'Può avere più valori (doppia ellisse)')}
+      ${chk(n.id, 'derived', n.derived, 'Derivato', b ? 'Pallino e linea tratteggiati (non standard in Batini)' : 'Calcolato da altri dati (tratteggiato)')}
+      ${chk(n.id, 'optional', n.optional, 'Facoltativo', b ? 'Mostra (0,1) accanto al nome; NULL nello schema SQL' : 'Può essere vuoto (NULL) nello schema SQL')}</div>
       <label class="field"><span>Tipo SQL</span><input class="inp" data-id="${n.id}" data-prop="dtype" value="${esc(n.dtype || '')}" list="dtypeList" autocomplete="off"></label>`;
     const owner = ownerOfAttr(n);
     s += owner ? `<p class="note-s">Appartiene a <button class="linkbtn" data-act="select" data-id="${owner.id}">${esc(owner.label)}</button>.</p>` : '<p class="note-s">Non è ancora collegato a un\'entità.</p>';
@@ -1201,7 +1379,7 @@ function nodePanel(n) {
   }
   if (n.type === 'isa') {
     const ents = nb(n.id).filter(x => x.o.type === 'entity').map(x => x.o); const info = isaInfo(n);
-    s += `<div class="checks">${chk(n.id, 'total', n.total, 'Totale', 'Ogni istanza del padre è in un figlio (t), altrimenti parziale (p)')}${chk(n.id, 'disjoint', n.disjoint, 'Esclusiva', 'Un\'istanza sta in un solo figlio (e), altrimenti sovrapposta (s)')}</div>
+    s += `<div class="checks">${chk(n.id, 'total', n.total, 'Totale', isB() ? 'Freccia piena (t); se parziale, freccia vuota (p)' : 'Ogni istanza del padre è in un figlio (t), altrimenti parziale (p)')}${chk(n.id, 'disjoint', n.disjoint, 'Esclusiva', 'Un\'istanza sta in un solo figlio (e), altrimenti sovrapposta (s)')}</div>
     <label class="field"><span>Entità padre</span><select class="inp" data-id="${n.id}" data-prop="parent"><option value="">Automatico (la più in alto)</option>${ents.map(e => `<option value="${e.id}" ${n.parent === e.id ? 'selected' : ''}>${esc(e.label)}</option>`).join('')}</select></label>
     <p class="note-s">Padre: <b>${esc(info.parent?.label || '—')}</b> · Figli: ${info.children.map(c => esc(c.label)).join(', ') || '—'}</p>`;
   }
@@ -1213,8 +1391,8 @@ function edgePanel(e) {
   const er = (a.type === 'relationship' && b.type === 'entity') || (b.type === 'relationship' && a.type === 'entity');
   let s = `<h3>Collegamento</h3><p class="sub">${esc(a.label)} — ${esc(b.label)}</p>`;
   s += `<label class="field"><span>Cardinalità</span>${cardInput(e, 'id="f-card"')}</label>`;
-  if (er) s += `<p class="note-s">Con la notazione (min,max) indica a quante istanze della relazione partecipa “${esc((a.type === 'entity' ? a : b).label)}”. Con 1 / N / M vale la notazione di Chen.</p>`;
-  s += `<div class="checks mt">${chk(e.id, 'total', e.total, 'Partecipazione totale', 'Linea doppia: ogni istanza deve partecipare')}</div>`;
+  if (er) s += `<p class="note-s">(min,max) indica a quante occorrenze della relazione partecipa ogni istanza di “${esc((a.type === 'entity' ? a : b).label)}”.${isB() ? '' : ' Con 1 / N / M vale la notazione di Chen.'}</p>`;
+  if (!isB()) s += `<div class="checks mt">${chk(e.id, 'total', e.total, 'Partecipazione totale', 'Linea doppia: ogni istanza deve partecipare')}</div>`;
   s += `<label class="field"><span>Ruolo (facoltativo)</span><input class="inp" data-id="${e.id}" data-prop="role" value="${esc(e.role)}" placeholder="es. capo, dipendente"></label>`;
   s += `<div class="row" style="margin-top:20px"><button class="btn" data-act="select" data-id="${a.id}">Vai a ${esc(a.label)}</button><button class="btn" data-act="select" data-id="${b.id}">Vai a ${esc(b.label)}</button><button class="btn danger" data-act="delete">Elimina</button></div>`;
   return s;
@@ -1374,8 +1552,9 @@ function exportSVG(bgMode) {
   const b = bbox(); if (!b) return null;
   const pad = 36; const x = Math.floor(b.x1 - pad), y = Math.floor(b.y1 - pad), w = Math.ceil(b.w + pad * 2), h = Math.ceil(b.h + pad * 2);
   const groups = pairGroups();
+  idMarks = identifierMarks();
   const css = diagramCSS(bgMode === 'none' ? { ...pal, bg: '#FFFFFF' } : pal);
-  return { w, h, text: `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="${x} ${y} ${w} ${h}"><style>${css}</style>${bgMode !== 'none' ? `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${pal.bg}"/>` : ''}<g>${doc.edges.map(e => edgeSVG(e, groups, false, true)).join('')}</g><g>${doc.nodes.map(n => nodeSVG(n, false)).join('')}</g></svg>` };
+  return { w, h, text: `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="${x} ${y} ${w} ${h}"><style>${css}</style>${bgMode !== 'none' ? `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${pal.bg}"/>` : ''}<g>${doc.edges.map(e => edgeSVG(e, groups, false, true)).join('')}${idMarks.svg}</g><g>${doc.nodes.map(n => nodeSVG(n, false)).join('')}</g></svg>` };
 }
 function svgToPng(s, scale) {
   return new Promise((res, rej) => {
@@ -1478,6 +1657,17 @@ $('#zFit').addEventListener('click', fit);
 $('#zGrid').addEventListener('click', () => { snap = !snap; $('#zGrid').classList.toggle('on', snap); svg.classList.toggle('nogrid', !snap); toast(snap ? 'Griglia e aggancio attivi' : 'Griglia disattivata'); persist(); });
 document.querySelectorAll('.tool').forEach(b => b.addEventListener('click', () => setTool(b.dataset.tool)));
 
+function setNotation(nt, quiet) {
+  notation = nt === 'chen' ? 'chen' : 'batini';
+  document.documentElement.setAttribute('data-notation', notation);
+  try { localStorage.setItem(NOTATION_KEY, notation); } catch (e) {}
+  document.querySelectorAll('[data-nbtn]').forEach(b => b.classList.toggle('on', b.dataset.nbtn === notation));
+  if (quiet) return;
+  renderCanvas(); renderPanel();
+  toast(isB() ? 'Notazione Batini' : 'Notazione Chen');
+}
+document.addEventListener('click', ev => { const b = ev.target.closest('[data-nbtn]'); if (b && b.dataset.nbtn !== notation) setNotation(b.dataset.nbtn); });
+
 const THEMES = ['system', 'light', 'dark'];
 function setTheme(t, quiet) {
   if (t === 'system') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', t);
@@ -1495,6 +1685,8 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { ap
 function boot() {
   try { const t = localStorage.getItem(THEME_KEY); if (t && t !== 'system') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
   applyTheme();
+  let nt = 'batini'; try { nt = localStorage.getItem(NOTATION_KEY) || 'batini'; } catch (e) {}
+  setNotation(nt, true);
   setTool('select');
   let saved = null; try { saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) {}
   if (saved && saved.doc) {

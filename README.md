@@ -6,6 +6,7 @@ Editor di diagrammi Entità-Relazione che funziona nel browser, senza installare
 
 ## Cosa fa
 
+- Due notazioni a scelta: **Batini** (predefinita, quella dei libri Atzeni et al.) e **Chen**, con un selettore in alto
 - Entità ed entità deboli, relazioni e relazioni identificanti, generalizzazioni ISA, note
 - Attributi chiave, chiave parziale, multivalore, derivati, composti, facoltativi
 - Cardinalità `(min,max)` oppure `1 / N / M`, partecipazione totale, ruoli
