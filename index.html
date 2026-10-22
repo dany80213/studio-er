@@ -1416,7 +1416,7 @@ function checkPanel() {
 let lastSQL = '', lastRel = '', lastMD = '';
 const mdOf = (tables, name) => `# Schema logico${name ? ' · ' + name : ''}\n\n` + tables.map(t => {
   const fk = c => t.fks.filter(f => f.cols.includes(c.name)).map(f => `FK → ${f.ref}.${f.refCols[f.cols.indexOf(c.name)]}`);
-  const rows = t.cols.map(c => `| ${t.pk.includes(c.name) ? `**${c.name}**` : c.name} | ${c.type} | ${[t.pk.includes(c.name) ? 'PK' : '', ...fk(c), c.nullable ? '' : 'NOT NULL'].filter(Boolean).join(', ')} |`);
+  const rows = t.cols.map(c => `| ${t.pk.includes(c.name) ? `<u>${c.name}</u>` : fk(c).length ? `<em style="color:#0B7A75">${c.name}</em>` : c.name} | ${c.type} | ${[t.pk.includes(c.name) ? 'PK' : '', ...fk(c), c.nullable ? '' : 'NOT NULL'].filter(Boolean).join(', ')} |`);
   return `## ${t.name}\n\n| Colonna | Tipo | Vincoli |\n|---|---|---|\n${rows.join('\n')}`;
 }).join('\n\n') + '\n';
 function schemaPanel() {
